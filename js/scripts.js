@@ -1,47 +1,103 @@
-class RangeValidator {
-	constructor (from, to) {
-		this.from = from;
-		this.to = to;
+class QueueIterator {
+	constructor(queue) {
+		this._queue = queue;
+		this._start = 0;
 	}
 
-get fromValidate () {
-	if (typeof this.from === 'number') {
-		return this.from
-	}
-	throw ('Error type')
-}
-
-set fromValidate (value) {
-    this.from = value;
-}
-
-get toValidate () {
-	if (typeof this.to === 'number') {
-		return this.to
-	}
-	throw ('Error type')
-}
-
-set toValidate (value) {
-	 this.to = value;
-}
-
-
-get range () {
-	return [this.fromValidate, this.toValidate];
-}
-
-
-validateNumber (count) {
-	return (count >= this.from) && (count <= this.to) 
-	? true
-	: false;
+	next() {
+		if (this._start >= this._queue.size) {
+			return {
+				value: undefined,
+				done: true,
+			}
+		}
+		return {
+			value: this._queue[this._start],
+			done: this._start++ === this._queue.size,
+		}
 	}
 }
 
+class Queue {
+	constructor() {
+		this.items = [];
+	}
 
-const range1 = new RangeValidator (10, 20);
-console.log(range1.fromValidate);
-console.log(range1.toValidate);
-console.log(range1.range);
-console.log(range1.validateNumber(21));
+	enqueue (element) {
+		this.items.push(element);
+		return this.items.length;
+	}
+
+	dequeue () {
+		return this.items.shift();
+	}
+
+	front () {
+		return this.items[0];
+	}
+
+	get isEmpty () {
+		return (this.items.length === 0);
+	}
+
+
+	get size () {
+		return this.items.length;
+	}
+
+	[Symbol.Iterator] () {
+		return new QueueIterator();
+
+	}
+}
+
+
+class QElement {
+	constructor(element, priority) {
+		this.element = element;
+		this.priority = priority;
+	}
+}
+
+class PriorityQueue {
+	constructor() {
+		this.items = [];
+	}
+
+	enqueue(element, priority) {
+		const qElement = new QElement(element, priority);
+		let contain = false;
+
+		for (let i = 0; i < this.items.length; i++) {
+			if (this.items[i].priority > qElement.priority) {
+				this.items.splice(i, 0, qElement);
+				contain = true;
+				break;
+			}
+		}
+		if (!contain) {
+			this.items.push(qElement);
+		}
+		return this.items.length;
+	}
+
+	dequeue() {
+		if (this.isEmpty)
+			return "Underflow";
+		return this.items.shift();
+		}
+
+	get isEmpty () {
+		return (this.items.length === 0);
+	}
+
+	front() {
+		if (this.isEmpty)
+			return "No elements in Queue";
+		return this.items[0];
+	}
+
+	get size () {
+		return this.items.length;
+	}
+}
